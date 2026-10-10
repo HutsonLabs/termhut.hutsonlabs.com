@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>term.hut — a calming workspace</title>
-  <meta name="description" content="term.hut — a local, agent-aware terminal for macOS. PTY shell, file tree, LSP editor, and a Claude Code chat panel in one window, local or over SSH.">
+  <meta name="description" content="term.hut — a local, agent-aware terminal for macOS, Linux, Windows and iPhone. Shell, file tree and LSP editor bound to one project, local or over SSH, with detached Claude Code agents that outlive the app.">
 
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="apple-touch-icon" href="assets/icon-full.svg">
@@ -13,7 +13,7 @@
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="term.hut — a local, agent-aware terminal">
-  <meta property="og:description" content="Terminal, file tree, LSP editor and Claude share state in one window. Sessions run behind a FIFO on the host that owns them, so closing the app detaches instead of killing them.">
+  <meta property="og:description" content="Terminal, file tree, LSP editor and agents share state in one window. Sessions run behind a FIFO on the host that owns them, so closing the app detaches instead of killing them.">
   <meta property="og:url" content="https://termhut.hutsonlabs.com/">
   <meta property="og:image" content="https://termhut.hutsonlabs.com/assets/og.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -81,6 +81,8 @@
     .shot { margin-top: var(--s-3); }
     .shot img { display: block; width: 100%; height: auto; }
     .shot + .shot { margin-top: var(--s-4); }
+    /* Crops of one surface read at the app's own scale, not stretched to the column. */
+    .shot--narrow .thut-frame { max-width: 780px; }
     .shot figcaption {
       margin-top: var(--s-2); font-family: var(--font-mono); font-size: var(--micro);
       line-height: 1.6; color: var(--ink-dim);
@@ -89,7 +91,9 @@
     .beta-line { display: inline-flex; align-items: center; gap: var(--s-2); color: var(--ink-muted); text-decoration: none; font-size: var(--body-s); }
     .beta-line:hover { color: var(--ink); }
     .beta { display: grid; grid-template-columns: 1fr auto; gap: var(--gutter); align-items: center; }
-    @media (max-width: 767px) { .beta { grid-template-columns: 1fr; } }
+    .phones { display: flex; gap: var(--s-3); }
+    .phones img { display: block; width: 168px; height: auto; border-radius: 22px; border: 1px solid var(--hairline); }
+    @media (max-width: 767px) { .beta { grid-template-columns: 1fr; } .phones img { width: calc(50% - var(--s-2)); } }
 
     /* A block cursor, not a blinking one: nothing on this page loops. */
     .cursor { display: inline-block; width: 0.55em; height: 1.05em; vertical-align: text-bottom; background: var(--accent); }
@@ -119,20 +123,20 @@
       <span>term.hut</span>
     </div>
     <h1>A calm agentic workspace</h1>
-    <p class="lead">Terminal, files, code editor and chat share state in one
+    <p class="lead">Terminal, files, code editor and agents share state in one
     window — against a local directory or ssh. Sessions run behind a
     FIFO on the host that owns them, so closing the app detaches instead of killing them.</p>
 
     <div class="row">
       <a class="thut-btn thut-btn--primary thut-btn--lg" id="dl-dmg"
-         href="https://github.com/HutsonLabs/term.hut-releases/releases/latest">Download for macOS<span class="thut-btn__meta" id="dl-dmg-meta">dmg · aarch64</span></a>
+         href="https://github.com/HutsonLabs/termhut.hutsonlabs.com/releases/latest">Download for macOS<span class="thut-btn__meta" id="dl-dmg-meta">dmg · aarch64</span></a>
       <a class="thut-btn thut-btn--secondary thut-btn--lg" href="#install">Other platforms</a>
     </div>
 
     <div class="row row--tight">
-      <span class="thut-badge" id="ver-badge"><a href="https://github.com/HutsonLabs/term.hut-releases/releases/latest" style="color:inherit;text-decoration:none">latest release</a></span>
+      <span class="thut-badge" id="ver-badge"><a href="https://github.com/HutsonLabs/termhut.hutsonlabs.com/releases/latest" style="color:inherit;text-decoration:none">latest release</a></span>
       <span class="thut-badge thut-badge--ok">signed &amp; notarized</span>
-      <span class="thut-badge thut-badge--warn">macOS 12+</span>
+      <span class="thut-badge thut-badge--warn">macOS 26+</span>
       <span class="thut-badge thut-badge--remote">ssh</span>
     </div>
 
@@ -150,7 +154,7 @@
 <span class="hl-cmt"># … close the laptop. The session is not a child process — it keeps running.</span>
 
 <span class="hl-cmt"># Monday, from another machine, over SSH</span>
-<span class="thut-code__prompt">&gt;_</span> anchored <span style="color:var(--remote)">~/src/api</span> · <span style="color:var(--ctp-mauve)">main</span> · <span style="color:var(--ok)">re-attached</span> — replaying, then following
+<span class="thut-code__prompt">&gt;_</span> anchored <span style="color:var(--remote)">~/src/api</span> · <span style="color:var(--ctp-mauve)">main</span> · tmux <span style="color:var(--ok)">re-attached</span> — the claude TUI is where you left it
 <span class="thut-code__prompt">&gt;_</span> <span class="cursor" aria-hidden="true"></span></pre>
     </div>
   </section>
@@ -171,7 +175,7 @@
       <div class="thut-feature">
         <span class="thut-feature__num">02</span>
         <h3 class="thut-feature__title">Curiosity</h3>
-        <p class="thut-feature__body">Could I design an app that met my criteria while also learning about Rust and Tauri? Could I keep it small, but useful? Could I use this for my business, personal, and technical amibition? I'm still trying to answer that question, but this is my start.</p>
+        <p class="thut-feature__body">Could I design an app that met my criteria while also learning about Rust and Tauri? Could I keep it small, but useful? Could I use this for my business, personal, and technical ambition? I'm still trying to answer that question, but this is my start.</p>
       </div>
       <div class="thut-feature">
         <span class="thut-feature__num">03</span>
@@ -183,7 +187,7 @@
     <div class="grid-2">
       <div class="thut-callout thut-callout--info">
         <span class="thut-callout__label">Reuse, not remake</span>
-        <p class="thut-callout__body">The build small by letting better tools do their thing. Also, <strong>term.hut</strong> works with Claude's subscription (important to me) and the same jsonl used with the .VSIX Anthropic release to reduce the likelihood of getting blocked.</p>
+        <p class="thut-callout__body">Build small by letting better tools do their thing. The agent is Claude Code's own TUI in a terminal tab, so <strong>term.hut</strong> works with a Claude subscription (important to me) and never touches its login.</p>
       </div>
       <div class="stack">
         <span class="thut-eyebrow">What I won't do</span>
@@ -200,224 +204,270 @@
     <div class="thut-sechead">
       <span class="thut-sechead__num">02</span>
       <h2 class="thut-sechead__title">In the window</h2>
-      <span class="thut-sechead__note">the panes, and what the chat knows</span>
+      <span class="thut-sechead__note">one project, bound to everything that works on it</span>
     </div>
 
     <div class="thut-callout thut-callout--info">
       <span class="thut-callout__label">about these images</span>
-      <p class="thut-callout__body">Every image below is rendered from the interface
-      mockups these surfaces were built against, using the app's own stylesheet — not a
-      photograph of a running build. The agent names, paths and numbers in them are
-      examples.</p>
+      <p class="thut-callout__body">Every desktop image below is a screenshot of term.hut 26.10
+      running against a small demo project, served to a browser with
+      <code class="thut-chip">th web</code>. The project, its paths and the agent are
+      examples; the agent's diff is a real run. The iPhone images are the app's phone
+      layout rendered on demo data.</p>
     </div>
 
     <div class="blocks">
 
       <article class="block">
-        <span class="thut-eyebrow">context · what this agent knows</span>
-        <h3 class="thut-feature__title">The files the session actually read</h3>
-        <p class="thut-feature__body">One panel lists the anchor's memory, the CLAUDE.md
-        chain, and the skills, hooks and MCP servers the session started with. Every row is
-        a file on the host that owns the session — local anchor, local file; ssh anchor,
-        remote file — and opening one opens that file in the editor pane. term.hut surfaces
-        the CLI's own files and implements no memory of its own.</p>
+        <span class="thut-eyebrow">anchored workspace · ⌘1 terminal · ⌘2 editor</span>
+        <h3 class="thut-feature__title">Terminal, tree and editor point at the same place</h3>
+        <p class="thut-feature__body">Open a folder and it becomes the anchor: the file tree,
+        the shells, the editor and its language servers all follow it, and so does the git
+        branch in the titlebar. Shells live in tmux on whichever host owns the project, so a
+        restart re-attaches them — a running <code class="thut-chip">claude</code> TUI
+        included — instead of starting over. With shell integration on, every command becomes
+        a block with its exit code and duration, one keystroke from being copied, folded,
+        rerun or handed to the agent. Language servers install themselves per project; the
+        gutter shows what changed since the last commit and who wrote the line you're on.</p>
         <figure class="shot">
           <div class="thut-frame">
-            <img src="assets/shots/02-context.png" width="2240" height="1089" loading="lazy" decoding="async"
-                 alt="term.hut with the context panel open beside a finished answer: memory, the CLAUDE.md chain, three skills, one hook, and a dashed row saying no MCP servers are configured for this workspace.">
+            <img src="assets/shots/workspace.png" width="2240" height="933" loading="lazy" decoding="async"
+                 alt="term.hut with a file tree, a terminal showing bun test passing and a git diff stat as command blocks with exit-code chips, and an editor with orders.ts open, its new lines marked in the git gutter and an inline blame note on line one.">
           </div>
-          <figcaption>what this agent knows, over ~/code/term.hut · main — every row opens the file it names</figcaption>
+          <figcaption>~/code/api · main — tests and a diff stat as command blocks, the changed lines in the gutter</figcaption>
         </figure>
       </article>
 
       <article class="block">
-        <span class="thut-eyebrow">composer · slash commands</span>
-        <h3 class="thut-feature__title">Whatever the CLI advertises, the composer completes</h3>
-        <p class="thut-feature__body">Type <code class="thut-chip">/</code> and the composer
-        completes against the command list the CLI sends in its own init message — skills,
-        project commands, plugins. Install a skill and it is in the list next session;
-        nothing here is hardcoded. Tab completes the token without running it, ⌘↵ opens the
-        SKILL.md behind a row in the editor.</p>
+        <span class="thut-eyebrow">context · what this agent knows</span>
+        <h3 class="thut-feature__title">The files the session actually reads</h3>
+        <p class="thut-feature__body">Right-click the project and ask what its agent knows:
+        the memory, the CLAUDE.md chain, and the skills, hooks and MCP servers a session
+        started there will load. Every row is a file on the host that owns the project —
+        local project, local file; ssh project, remote file — and ↵ opens it in the editor.
+        term.hut surfaces the CLI's own files and keeps no memory of its own.</p>
+        <figure class="shot shot--narrow">
+          <div class="thut-frame">
+            <img src="assets/shots/context.png" width="1605" height="1090" loading="lazy" decoding="async"
+                 alt="The what-this-agent-knows card over the editor: a memory file with three entries, the user and project CLAUDE.md files, a project skill and a user skill, a PostToolUse hook and a postgres MCP server.">
+          </div>
+          <figcaption>memory, two CLAUDE.md files, two skills, a hook and an MCP server — each row opens the file it names</figcaption>
+        </figure>
+      </article>
+
+      <article class="block">
+        <span class="thut-eyebrow">drawings · .excalidraw</span>
+        <h3 class="thut-feature__title">A diagram the agent writes opens as a diagram</h3>
+        <p class="thut-feature__body">An <code class="thut-chip">.excalidraw</code> file opens
+        in the editor pane as the drawing, in a full Excalidraw editor that follows the app's
+        theme and saves like any other file — with the JSON one toggle away. Claude writes
+        that JSON well, so a diagram it draws lands in a tab instead of an opaque blob, and a
+        change it makes while the drawing is open appears in front of you. BPMN files get the
+        same treatment; images, notebooks, SVG, HTML and Markdown get previews.</p>
         <figure class="shot">
           <div class="thut-frame">
-            <img src="assets/shots/03-skills.png" width="2240" height="840" loading="lazy" decoding="async"
-                 alt="The composer with a single slash typed: a popup lists /release, /code-review, /simplify, /security-review, /schedule and /btw, each tagged project, user or plugin.">
+            <img src="assets/shots/drawing.png" width="2240" height="1400" loading="lazy" decoding="async"
+                 alt="An Excalidraw drawing open in the editor pane, themed dark: a client box points at a Hono router, which points at /orders and /health routes, and /orders points at a db box.">
           </div>
-          <figcaption>the list comes from the CLI init message — project, user and plugin commands, tagged by where they came from</figcaption>
+          <figcaption>docs/request-path.excalidraw — the editor pane, not a separate app</figcaption>
         </figure>
       </article>
 
     </div>
   </section>
 
-  <section class="wrap" id="fleet">
+  <section class="wrap" id="agents">
     <div class="thut-sechead">
       <span class="thut-sechead__num">03</span>
-      <h2 class="thut-sechead__title">The fleet</h2>
-      <span class="thut-sechead__note">read from ~/.term-hut/agents — no attach needed</span>
+      <h2 class="thut-sechead__title">Agents</h2>
+      <span class="thut-sechead__note">read from ~/.term-hut/agents — the app is a viewer, not the owner</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="thut-callout thut-callout--info">
+        <span class="thut-callout__label">interactive work happens in the TUI</span>
+        <p class="thut-callout__body">The agent runs in Claude Code's own TUI, in an
+        ordinary terminal tab in the project's directory or worktree. term.hut used to
+        render the stream itself; the CLI is better at that, and term.hut already has an
+        excellent pane for running programs. Auth is the CLI's own, so term.hut contains no
+        Anthropic auth code and your subscription works because it's just
+        <code class="thut-chip">claude</code>.</p>
+      </div>
+      <div class="stack">
+        <span class="thut-eyebrow">What the app won't do to an agent</span>
+        <ul class="note-list">
+          <li>Answer its permission prompts.</li>
+          <li>Stop it, or delete it — dead agents' directories are pruned after 14 days.</li>
+          <li>Ping you about it — no banners, no dock badges.</li>
+        </ul>
+      </div>
     </div>
 
     <div class="blocks">
 
       <article class="block">
-        <span class="thut-eyebrow">⌘⇧A · fleet palette</span>
-        <h3 class="thut-feature__title">Every agent, on every host you know</h3>
-        <p class="thut-feature__body">One keystroke over whatever panel is up. The list is
-        read out of the agent dirs on this Mac and over SSH — working, waiting on you,
-        finished, exited — without attaching to anything. ↵ attaches, so a session stalled
-        on a permission prompt is one keystroke from unblocked.</p>
+        <span class="thut-eyebrow">⌘⇧Y · agent review</span>
+        <h3 class="thut-feature__title">What the agent changed, turn by turn</h3>
+        <p class="thut-feature__body">Review gathers everything the project's agent changed
+        into one read-only buffer, grouped by the turn that made each hunk and labelled with
+        the prompt that asked for it. Undo, stage or keep a hunk or a whole file without
+        leaving the keyboard; it re-reads while the agent is still working, and it works the
+        same on an SSH host. Changes it can't tie to the agent are shown, never undone.</p>
         <figure class="shot">
           <div class="thut-frame">
-            <img src="assets/shots/01-fleet.png" width="2240" height="1089" loading="lazy" decoding="async"
-                 alt="The fleet palette open over a chat panel: agents grouped under this Mac and two SSH hosts, one of them stalled 38 minutes on a permission prompt for a database migration.">
+            <img src="assets/shots/review.png" width="2240" height="1400" loading="lazy" decoding="async"
+                 alt="The agent review tab: a side list of four files changed in turn one, and the hunks themselves — a README route row, a remove method in db.ts, and a new test file — each with undo, stage and keep buttons.">
           </div>
-          <figcaption>five agents across three hosts; the stalled one says which command is waiting and for how long</figcaption>
+          <figcaption>one turn, four files — undo, stage or keep each hunk; “agent still running · new changes appear live”</figcaption>
         </figure>
       </article>
 
       <article class="block">
-        <span class="thut-eyebrow">the unit · agent cards</span>
-        <h3 class="thut-feature__title">One card per agent dir, six faces, one size</h3>
-        <p class="thut-feature__body">State changes the badge and the tinted left border,
-        never the layout, so twenty agents stay scannable. Each card carries a five-line
-        window onto the most recent tool calls, read from the same transcript tail the state
-        is derived from; the model, effort and permission mode it was launched with; and
-        ring gauges for context and for the 5h and weekly windows. Clicking one opens a
-        scrollable details overlay.</p>
-        <figure class="shot">
-          <div class="thut-frame">
-            <img src="assets/shots/05-agent-cards.png" width="2240" height="743" loading="lazy" decoding="async"
-                 alt="Six agent cards at the same size: working, waiting on a permission prompt, waiting on a question, finished with a diff to review, stopped on an error, and exited with the transcript kept.">
-          </div>
-          <figcaption>the six faces — working, permission, question, finished, error, exited</figcaption>
-        </figure>
-      </article>
-
-      <article class="block">
-        <span class="thut-eyebrow">⌘⇧D · fleet dashboard</span>
-        <h3 class="thut-feature__title">The whole fleet, over the workspace</h3>
-        <p class="thut-feature__body">A panel over the panes rather than a window of its
-        own: one flat grid of every agent on every host, the ones needing you sorted first,
-        remote ones marked rather than separated. A filter over label, cwd and host; state
-        chips that carry their counts; the account's 5h and weekly rings; and a launcher.
-        The list toggle folds each card to one aligned row when the fleet is long.</p>
-        <figure class="shot">
-          <div class="thut-frame">
-            <img src="assets/shots/06-dashboard.png" width="2240" height="902" loading="lazy" decoding="async"
-                 alt="The fleet dashboard in grid view: seven agent cards over the workspace, two of them needing an answer, with filter, state chips, usage rings and a new agent button along the top.">
-          </div>
-          <figcaption>grid view — seven agents, two of them waiting on you</figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="thut-frame">
-            <img src="assets/shots/07-dashboard-list.png" width="2240" height="731" loading="lazy" decoding="async"
-                 alt="The same seven agents in list view: one row each, aligned by place, branch, last activity, quick action, context ring, model and state.">
-          </div>
-          <figcaption>list view — the same fleet, one row per agent, with the quick action still on the row</figcaption>
-        </figure>
-      </article>
-
-      <article class="block">
-        <span class="thut-eyebrow">launch · new agent</span>
+        <span class="thut-eyebrow">⌘⇧N · new agent</span>
         <h3 class="thut-feature__title">The dialog prints the command it is sugar over</h3>
-        <p class="thut-feature__body">Where — a host and a recent workspace. What — a
-        prompt, with a label suggested from it. How to run — model, effort, permission mode,
-        in the composer's own order. And when: now, or on a schedule, which is cron on that
-        host calling the same command. The exact <code class="thut-chip">hut agent run</code>
-        line sits above the launch button, because the agent outlives the window that
-        started it.</p>
-        <figure class="shot">
+        <p class="thut-feature__body">Where — this Mac or a server, and a recent project.
+        What — a prompt, with a label suggested from it. How to run — model, effort and
+        permission mode. And when: now, or on a schedule, which writes the prompt file and
+        hands you the cron line to add on that host — term.hut never edits your crontab. The
+        exact <code class="thut-chip">th agent run</code> line sits above the launch button,
+        because the agent outlives the window that started it.</p>
+        <figure class="shot shot--narrow">
           <div class="thut-frame">
-            <img src="assets/shots/08-new-agent.png" width="2240" height="1026" loading="lazy" decoding="async"
-                 alt="The new agent dialog over the dashboard: workspace picker with recent hosts, a prompt, a suggested label, model, effort and permission chips, a now or scheduled choice, and the hut agent run command printed above the launch button.">
+            <img src="assets/shots/new-agent.png" width="1563" height="1265" loading="lazy" decoding="async"
+                 alt="The new agent dialog: project on this Mac, a pagination prompt, a suggested label, default model, medium effort and acceptEdits chips, a now-or-schedule choice, and the th agent run command printed above the launch button.">
           </div>
           <figcaption>the printed command is what runs — the dialog adds nothing the CLI can't do</figcaption>
         </figure>
       </article>
 
       <article class="block">
-        <span class="thut-eyebrow">unattended · hut agent run</span>
+        <span class="thut-eyebrow">unattended · th agent run</span>
         <h3 class="thut-feature__title">An agent that starts with no app running</h3>
         <p class="thut-feature__body">The same command from a shell or a crontab spawns a
         detached agent with term.hut nowhere in the picture; cron on the host is the whole
-        scheduler. The run writes an ordinary agent dir, so every device that can reach that
-        host discovers the finished work — the notification, the diff and the transcript are
-        there the next time you open the app.</p>
-        <figure class="shot">
-          <div class="thut-frame">
-            <img src="assets/shots/04-unattended.png" width="2240" height="809" loading="lazy" decoding="async"
-                 alt="A shell on an SSH host showing a crontab entry that calls hut agent run, a second run spawned by hand reporting its agent dir and pid, and a notifications panel offering to attach to the finished overnight agent.">
-          </div>
-          <figcaption>a crontab line, a detached run, and the notification it produced on another device</figcaption>
-        </figure>
-      </article>
+        scheduler. It writes an ordinary agent directory, so the next morning — on that
+        machine or another one over SSH — ⌘⇧Y reviews what it changed like any other
+        agent's. Give it <code class="thut-chip">acceptEdits</code>: nobody is attached to
+        answer a prompt overnight.</p>
+        <div class="thut-code">
+          <div class="thut-code__bar"><span>crontab · then a run by hand</span></div>
+          <pre class="thut-code__body"><span class="hl-cmt"># 05:30 every day, on the host that has the repo</span>
+30 5 * * *  th agent run --cwd ~/work/api --prompt-file ~/.term-hut/prompts/nightly-triage.md \
+              --permission-mode acceptEdits --label "nightly triage"
 
-      <article class="block">
-        <span class="thut-eyebrow">hygiene · housekeeping</span>
-        <h3 class="thut-feature__title">The worktrees an agent leaves behind</h3>
-        <p class="thut-feature__body">Agents that work in
-        <code class="thut-chip">.claude/worktrees/</code> leave trees and branches after they
-        exit, and an uncommitted one outlives the run that made it. The broom sweeps every
-        repo a live or recent agent touched, on this Mac and over SSH, and triages what it
-        finds: clean and fully merged is pre-checked and removed with
-        <code class="thut-chip">git worktree remove</code> plus a branch delete — never
-        <code class="thut-chip">--force</code>, never <code class="thut-chip">-D</code>. A
-        dirty worktree is re-checked at removal time and refused whatever the caller asked
-        for. A repo the sweep could not read is listed as an error rather than left out.</p>
-        <figure class="shot">
-          <div class="thut-frame">
-            <img src="assets/shots/09-housekeeping.png" width="2240" height="871" loading="lazy" decoding="async"
-                 alt="The housekeeping drawer listing five leftovers across three repos and two hosts, the clean merged ones pre-checked, a dirty one left unchecked with its uncommitted diff, and a subagent session tree open on a card behind it.">
-          </div>
-          <figcaption>five leftovers, three repos, two hosts — the dirty one is never pre-checked</figcaption>
-        </figure>
+<span class="thut-code__prompt">$</span> th agent run --cwd ~/code/api --label "orders: delete route" --prompt "Add DELETE /orders/:id …"
+ag_mv2s1bl626frrm · spawned · pid 55785 · ~/.term-hut/agents/ag_mv2s1bl626frrm/
+<span style="color:var(--ok)">✓ detached — it keeps running after this shell exits</span></pre>
+        </div>
       </article>
 
     </div>
   </section>
 
-  <section class="wrap" id="install">
+  <section class="wrap" id="remote">
     <div class="thut-sechead">
       <span class="thut-sechead__num">04</span>
-      <h2 class="thut-sechead__title">Try it if you'd like</h2>
+      <h2 class="thut-sechead__title">Remote is not a lesser mode</h2>
+      <span class="thut-sechead__note">a project over SSH behaves like a local one</span>
     </div>
 
     <div class="grid-3">
+      <div class="thut-feature">
+        <span class="thut-feature__num">01</span>
+        <h3 class="thut-feature__title">A resident server</h3>
+        <p class="thut-feature__body">Connect a server once and term.hut runs a small
+        <code class="thut-chip">hut-server</code> there, checked against a SHA-256 built into
+        the app. It serves files, git, search, file watching and language servers, and it
+        outlives the connection: a laptop that sleeps or changes networks reconnects to the
+        same server with nothing in flight lost.</p>
+      </div>
+      <div class="thut-feature">
+        <span class="thut-feature__num">02</span>
+        <h3 class="thut-feature__title">Shells that survive</h3>
+        <p class="thut-feature__body">Remote terminals use their own SSH channel and tmux on
+        the host, so they keep their jobs across a restart and still work when the server is
+        down — use one to fix the host. A port that starts listening there is forwarded to
+        localhost over the same session, with an offer to open or preview it.</p>
+      </div>
+      <div class="thut-feature">
+        <span class="thut-feature__num">03</span>
+        <h3 class="thut-feature__title">Failures with buttons</h3>
+        <p class="thut-feature__body">It retries on its own first, then shows one message
+        per project with what to do next: retry, reinstall the server, upload it instead of
+        downloading, open a terminal on the host, copy diagnostics.
+        <code class="thut-chip">th remote doctor &lt;host&gt;</code> checks each stage from
+        the command line. Linux x86_64 and aarch64 hosts, and Apple silicon Macs.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="install">
+    <div class="thut-sechead">
+      <span class="thut-sechead__num">05</span>
+      <h2 class="thut-sechead__title">Try it if you'd like</h2>
+    </div>
+
+    <div class="grid-2">
       <div class="thut-card">
         <h3 class="thut-feature__title">macOS</h3>
-        <span class="thut-eyebrow">Apple Silicon · signed and notarized</span>
+        <span class="thut-eyebrow">Apple silicon · macOS 26+ · signed and notarized</span>
         <div class="thut-code">
           <div class="thut-code__bar"><span>zsh</span><button type="button" class="thut-code__copy">copy</button></div>
           <pre class="thut-code__body"><span class="thut-code__prompt">$</span> <span data-cmd>open term.hut_<span data-ver>&lt;version&gt;</span>_aarch64.dmg</span></pre>
         </div>
+        <p class="thut-feature__body">Updates itself in place. <code class="thut-chip">th</code>
+        on your PATH opens files and folders from any shell.</p>
         <div class="card-actions">
           <a class="thut-btn thut-btn--secondary thut-btn--sm" id="dl-dmg-2"
-             href="https://github.com/HutsonLabs/term.hut-releases/releases/latest">Download .dmg</a>
+             href="https://github.com/HutsonLabs/termhut.hutsonlabs.com/releases/latest">Download .dmg</a>
         </div>
       </div>
 
       <div class="thut-card">
         <h3 class="thut-feature__title">Linux</h3>
-        <span class="thut-eyebrow">amd64 · Debian</span>
+        <span class="thut-eyebrow">x86_64 + aarch64 · deb · rpm · Flatpak · AUR</span>
         <div class="thut-code">
-          <div class="thut-code__bar"><span>zsh</span><button type="button" class="thut-code__copy">copy</button></div>
-          <pre class="thut-code__body"><span class="thut-code__prompt">$</span> <span data-cmd>curl -LO https://github.com/HutsonLabs/term.hut-releases/releases/latest/download/term.hut_<span data-ver>&lt;version&gt;</span>_amd64.deb &amp;&amp; sudo apt install ./term.hut_<span data-ver>&lt;version&gt;</span>_amd64.deb</span></pre>
+          <div class="thut-code__bar"><span>sh</span><button type="button" class="thut-code__copy">copy</button></div>
+          <pre class="thut-code__body"><span class="thut-code__prompt">$</span> <span data-cmd>curl -fsSL https://github.com/HutsonLabs/termhut.hutsonlabs.com/releases/latest/download/termhut-install.sh | sh</span></pre>
         </div>
+        <p class="thut-feature__body">Installs the release's package with apt, dnf, zypper or
+        pacman. Debian 12+, Ubuntu 22.04+, Fedora, openSUSE Tumbleweed; Arch and Omarchy get
+        <code class="thut-chip">term-hut-bin</code> (x86_64). The deb and rpm update themselves.</p>
         <div class="card-actions">
-          <a class="thut-btn thut-btn--secondary thut-btn--sm" id="dl-deb"
-             href="https://github.com/HutsonLabs/term.hut-releases/releases/latest">Download .deb</a>
+          <a class="thut-btn thut-btn--secondary thut-btn--sm"
+             href="https://github.com/HutsonLabs/termhut.hutsonlabs.com/releases/latest">All packages</a>
         </div>
       </div>
 
       <div class="thut-card">
         <h3 class="thut-feature__title">Container</h3>
-        <span class="thut-eyebrow">Selkies VNC · Web Mode</span>
+        <span class="thut-eyebrow">th web · in your browser</span>
         <div class="thut-code">
-          <div class="thut-code__bar"><span>zsh</span><button type="button" class="thut-code__copy">copy</button></div>
-          <pre class="thut-code__body"><span class="thut-code__prompt">$</span> <span data-cmd>docker run --rm -p 6767:6767 ghcr.io/hutsonlabs/term.hut:latest</span></pre>
+          <div class="thut-code__bar"><span>sh</span><button type="button" class="thut-code__copy">copy</button></div>
+          <pre class="thut-code__body"><span class="thut-code__prompt">$</span> <span data-cmd>docker run -d --init -p 6767:6767 ghcr.io/hutsonlabs/term.hut:latest</span></pre>
         </div>
+        <p class="thut-feature__body">The same UI served over HTTP and a WebSocket.
+        <code class="thut-chip">docker logs</code> prints the token URL to open. Or run
+        <code class="thut-chip">th web</code> on any install, and
+        <code class="thut-chip">th web install-login</code> to keep it running.</p>
         <div class="card-actions">
-          <a class="thut-btn thut-btn--secondary thut-btn--sm" href="https://github.com/HutsonLabs/term.hut-releases/pkgs/container/term.hut">Package on ghcr.io</a>
+          <a class="thut-btn thut-btn--secondary thut-btn--sm" href="https://github.com/HutsonLabs/termhut.hutsonlabs.com/pkgs/container/term.hut">Package on ghcr.io</a>
+        </div>
+      </div>
+
+      <div class="thut-card">
+        <h3 class="thut-feature__title">Windows</h3>
+        <span class="thut-eyebrow">WSL 2 · WSLg or your browser</span>
+        <div class="thut-code">
+          <div class="thut-code__bar"><span>PowerShell</span><button type="button" class="thut-code__copy">copy</button></div>
+          <pre class="thut-code__body"><span class="thut-code__prompt">&gt;</span> <span data-cmd>&amp; ([scriptblock]::Create((irm https://github.com/HutsonLabs/termhut.hutsonlabs.com/releases/latest/download/termhut-wsl.ps1)))</span></pre>
+        </div>
+        <p class="thut-feature__body">Installs the Linux Flatpak into a WSL 2 distro and opens
+        it through WSLg, or in your Windows browser. <code class="thut-chip">termhut-wsl.cmd</code>
+        does the same where the execution policy refuses a downloaded script.</p>
+        <div class="card-actions">
+          <a class="thut-btn thut-btn--secondary thut-btn--sm"
+             href="https://github.com/HutsonLabs/termhut.hutsonlabs.com/releases/latest/download/termhut-wsl.cmd">Download termhut-wsl.cmd</a>
         </div>
       </div>
     </div>
@@ -432,21 +482,30 @@
         </div>
         <p class="thut-feature__body">SSH straight to your own servers — Linux, or a Mac
         with Remote Login — with no account and no relay. It attaches to the same tmux sessions
-        as term.hut on the desktop, shows which projects have an agent waiting on you, and has
+        as term.hut on the desktop, shows which projects have an agent working, and has
         files and an editor. The app makes its own key and installs it with your password once.</p>
         <ul class="note-list">
           <li>Needs the free TestFlight app and an SSH server you can log in to.</li>
           <li>Feedback through TestFlight, or <a href="mailto:support@hutsonlabs.com" style="color:inherit">support@hutsonlabs.com</a>.</li>
         </ul>
+        <div class="card-actions">
+          <a class="thut-btn thut-btn--primary thut-btn--md" href="https://testflight.apple.com/join/kCrJN2gX">Join the beta<span class="thut-btn__meta">TestFlight</span></a>
+        </div>
       </div>
-      <div class="stack">
-        <a class="thut-btn thut-btn--primary thut-btn--md" href="https://testflight.apple.com/join/kCrJN2gX">Join the beta<span class="thut-btn__meta">TestFlight</span></a>
+      <div class="phones">
+        <img src="assets/shots/phone-servers.png" width="1170" height="2532" loading="lazy" decoding="async"
+             alt="The iPhone app's server list: two connected servers with their projects, one marked with a working agent, and a third server not connected.">
+        <img src="assets/shots/phone-terminal.png" width="1170" height="2532" loading="lazy" decoding="async"
+             alt="A terminal on the iPhone in the term.hut project on the server studio, showing git log and a passing test run, with Terminal, Files and Editor tabs along the bottom.">
       </div>
     </div>
 
     <div class="thut-callout thut-callout--ok">
       <span class="thut-callout__label">build</span>
-      <p class="thut-callout__body">Every release ships the same version three ways. The container image is built in the same CI run as the deb, from that exact deb, so the three artifacts on a release are always the same build. The macOS app updates itself in place after that.</p>
+      <p class="thut-callout__body">Every release ships one version everywhere: the dmg, the
+      deb, rpm and Flatpak for both architectures, the Arch package, and the container image,
+      which is built in the same CI run from that exact deb. The remote server binaries are
+      on the same release, at the same version as the app that installs them.</p>
     </div>
   </section>
 
@@ -456,22 +515,24 @@
   <div style="display:flex;flex-direction:column;gap:8px">
     <img src="assets/favicon.svg" alt="" width="28" height="28" style="display:block">
     <div class="thut-footer__meta">HutsonLabs<br>termhut.hutsonlabs.com</div>
-    <a class="thut-footer__repo" href="https://github.com/HutsonLabs/term.hut-releases">GitHub</a>
+    <a class="thut-footer__repo" href="https://github.com/HutsonLabs/termhut.hutsonlabs.com">GitHub</a>
   </div>
   <div class="thut-footer__cols">
     <div class="thut-footer__col">
       <span class="thut-footer__head">Download</span>
       <a class="thut-footer__link" href="#install">macOS dmg</a>
-      <a class="thut-footer__link" href="#install">Linux deb</a>
+      <a class="thut-footer__link" href="#install">Linux packages</a>
+      <a class="thut-footer__link" href="https://github.com/HutsonLabs/termhut.hutsonlabs.com/pkgs/container/term.hut">Container image</a>
+      <a class="thut-footer__link" href="#install">Windows (WSL 2)</a>
       <a class="thut-footer__link" href="https://testflight.apple.com/join/kCrJN2gX">iPhone beta</a>
-      <a class="thut-footer__link" href="https://github.com/HutsonLabs/term.hut-releases/pkgs/container/term.hut">Container image</a>
     </div>
     <div class="thut-footer__col">
       <span class="thut-footer__head">Project</span>
       <a class="thut-footer__link" href="#why">Why it exists</a>
       <a class="thut-footer__link" href="#window">In the window</a>
-      <a class="thut-footer__link" href="#fleet">The fleet</a>
-      <a class="thut-footer__link" href="https://github.com/HutsonLabs/term.hut-releases/releases">Release assets</a>
+      <a class="thut-footer__link" href="#agents">Agents</a>
+      <a class="thut-footer__link" href="#remote">Remote</a>
+      <a class="thut-footer__link" href="https://github.com/HutsonLabs/termhut.hutsonlabs.com/releases">Release assets</a>
       <a class="thut-footer__link" href="privacy.html">Privacy</a>
     </div>
   </div>
@@ -484,19 +545,18 @@
   // /releases/latest, which is always correct.
   (async () => {
     try {
-      const r = await fetch("https://api.github.com/repos/HutsonLabs/term.hut-releases/releases/latest");
+      const r = await fetch("https://api.github.com/repos/HutsonLabs/termhut.hutsonlabs.com/releases/latest");
       if (!r.ok) return;
       const rel = await r.json();
       const ver = (rel.tag_name || "").replace(/^v/, "");
       if (!ver) return;
       const asset = suffix => (rel.assets || []).find(a => a.name.endsWith(suffix));
-      const dmg = asset(".dmg"), deb = asset(".deb");
+      const dmg = asset(".dmg");
       if (dmg) {
         for (const id of ["dl-dmg", "dl-dmg-2"]) document.getElementById(id).href = dmg.browser_download_url;
         if (dmg.size) document.getElementById("dl-dmg-meta").textContent =
           (dmg.size / 1e6).toFixed(1) + " MB · dmg";
       }
-      if (deb) document.getElementById("dl-deb").href = deb.browser_download_url;
       document.querySelectorAll("[data-ver]").forEach(el => el.textContent = ver);
       document.querySelector("#ver-badge a").textContent = rel.tag_name;
     } catch { /* static fallbacks stand */ }
